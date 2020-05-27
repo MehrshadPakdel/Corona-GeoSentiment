@@ -3,7 +3,9 @@ from bokeh.embed import components
 from bokeh.resources import INLINE, CDN
 
 def create_html_template(layout):
-
+    
+    # bokeh components required to embed the input bokeh layout into a html
+    # template using e.g. Jinja2
     s_script, s_div = components(layout)
     
     template = Template('''
@@ -64,12 +66,16 @@ def create_html_template(layout):
               margin-right: auto;
               width: 50%;
             }
+            .centerdiv {
+            margin: 0 auto;
+            width: 90%;
+            }
         </style>
     </head>
     <body>
         <div class="container">
         
-            <h1>Twitter Sentiment Analysis During Corona Crisis</h1>
+            <h1>Twitter Geo-Sentiment Analysis<br>During Corona Crisis</h1>
             
             <h2>The Idea</h2>
             
@@ -77,7 +83,9 @@ def create_html_template(layout):
             up with this idea to analyze twitter data using corona keywords.
             This analysis allows to create temporal and spatial snapshots of 
             the public opinion regarding topics related to the Corona-Crisis 
-            such as social distancing, curfews or healthcare occupancy.</p>
+            such as social distancing, curfews or healthcare occupancy.
+            To limit the number of languages for the sentiment analysis, I 
+            first started out to analyze tweets captured in Germany.</p> 
             
             <h2>Workflow</h2>
             
@@ -86,13 +94,14 @@ def create_html_template(layout):
                 <li>Collect tweet data and save them to a SQLite database using <a href="https://docs.python.org/3/library/sqlite3.html" target="_blank">sqlite3</a></li>
                 <li>Tweet text processing and sentiment analysis using <a href="https://textblob.readthedocs.io/en/dev/" target="_blank">TextBlob</a> for english and german languages</li>
                 <li>Mapping user locations to geographic coordinates and creating map of germany using <a href="https://geopandas.org/" target="_blank">geopandas</a> and <a href="https://docs.bokeh.org/en/latest/" target="_blank">bokeh</a></li>
-                <li>Bringing everything together and creating interactive graphs with <a href="https://docs.bokeh.org/en/latest/" target="_blank">bokeh</a></li>
-                <li>Look at the source code in the <a href="https://github.com/MehrshadPakdel/Corona-GeoSentiment" target="_blank">GitHub repository</a></li>
+                <li>Creating interactive graphs with <a href="https://docs.bokeh.org/en/latest/" target="_blank">bokeh</a></li>
+                <li>Bringing everything together and create customized html templates using <a href="https://palletsprojects.com/p/jinja/" target="_blank">Jinja2</a></li>
+                <li>Have a look at the source code in the <a href="https://github.com/MehrshadPakdel/Corona-GeoSentiment" target="_blank">GitHub repository</a></li>
             </ul>
             
         <h2>The Data</h2>
         
-        <div class="container">
+        <div class="centerdiv">
         
             {{ s_div|safe }}
             
@@ -124,7 +133,8 @@ def create_html_template(layout):
         scientist, I am excited to learn new Python techniques and 
         frameworks. If you have questions about this project, please 
         don't hesitate to contact me via <a href="https://www.linkedin.com/in/mehrshad-pakdel/" target="_blank">LinkedIn</a>.</p>
-        
+        <br>
+        <p style="text-align:center;"><a href="./notice.html" target="_blank" style="font-size: 14px;color:#737373;margin-bottom: 4em;">Legal Notice</a></p>
     </div>
     </body>''')
     

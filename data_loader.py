@@ -93,11 +93,12 @@ def load_tweets_from_db(**kwargs):
                                id_str,
                                retweet_count,
                                user_followers
-                               FROM tweets WHERE date(created) != "2020-05-06"''', conn) # removes 2020-05-06 data from db
+                               FROM tweets WHERE date(created) != "2020-05-06"''', conn) # removes 2020-05-06 data from query due to low number of data points 
     
     # close connection and return dataframe filtered for date
     c.close()
     conn.close()
+    
     # easy way to remove duplicats based on twitter id_str 
     df.drop_duplicates(subset='id_str', keep="first", inplace=True)
     return df

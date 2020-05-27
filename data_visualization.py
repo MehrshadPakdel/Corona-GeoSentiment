@@ -23,6 +23,7 @@ from bokeh.util.browser import view
 from html_template import create_html_template
 
 from utils import resources_dir
+from utils import docs_dir
 
 # general front style attributes for entire project
 font ='Helvetica'
@@ -543,12 +544,12 @@ def create_bokeh_plot(df,
                          location=(0,0))
     s_p.add_layout(color_bar, 'right')
       
-    # fixed widgets column contains select dropdown men
-    
+    # fixed widgets column contains select dropdown menu
+    dropdown = column(select, sizing_mode="fixed", height=50, width=800)
     # placeholder div containers
+    
     ph_fig_sep = Div(text="", height=50, width=20)
     ph_widget_sep = Div(text="", height=20, width=500)
-    
     # create whisker sentiment plots for polarity and subjectivity
     from whisker_plot import whisker_sentiment, whisker_city_count
     w_pol = whisker_sentiment(df, 'polarity')
@@ -557,7 +558,7 @@ def create_bokeh_plot(df,
     
     # assembling layout together
     
-    layout = column(select,
+    layout = column(row(ph_fig_sep, ph_fig_sep, dropdown),
                     row(ph_widget_sep),
                     row(s_p, ph_fig_sep, g_p),
                     row(ph_widget_sep),
@@ -570,10 +571,10 @@ def create_bokeh_plot(df,
     # calling create_html_template function to assemble bokeh plots into
     # custom styled html/css templates    
     html = create_html_template(layout)
-    filename = 'sentiment.html'
+    filename = 'index.html'
     
     # generate output file as html
-    with open(filename, "w", encoding="utf-8") as f:
+    with open((os.path.join(docs_dir, filename)), "w", encoding="utf-8") as f:
         f.write(html)
         
     view(filename)

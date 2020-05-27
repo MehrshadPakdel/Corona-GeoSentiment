@@ -1,5 +1,4 @@
 __pycache__
-utils.py
 *.json
 *.db
 *.png
