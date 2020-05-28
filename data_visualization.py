@@ -19,6 +19,7 @@ from bokeh.palettes import PiYG
 from bokeh.plotting import figure
 from bokeh.layouts import column, row
 from bokeh.util.browser import view
+from bokeh.io import export_png
 
 from html_template import create_html_template
 
@@ -588,6 +589,9 @@ def create_bokeh_plot(df,
                     row(ph_widget_sep),
                     sizing_mode="stretch_both")
     
+    # if required plot can be exported as png
+    #export_png(layout, filename="plot.png")
+
     # calling create_html_template function to assemble bokeh plots into
     # custom styled html/css templates    
     html = create_html_template(layout)
