@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 19 16:28:00 2020
-
-@author: mehrs
-"""
 import pandas as pd
+import numpy as np
 
-from bokeh.models import ColumnDataSource, Whisker, FuncTickFormatter, Dash
+from bokeh.models import (ColumnDataSource,
+                          Whisker,
+                          FuncTickFormatter,
+                          Dash,
+                          Range1d)
 from bokeh.plotting import figure
 
 # import in function to avoid circular dependency
@@ -72,9 +71,17 @@ def whisker_sentiment(df, calc_attr):
                 line_color='pink',
                 line_width=5))
                 
-    
+    # indicator for mean values as dash added to plot
     dash = Dash(x="x", y="y", size=10, line_color="black", line_width=1, fill_color=None)
     p.add_glyph(source_mean, dash)
+    
+    # adjust min and max of x axis and distribute major axis ticks over date
+    # ranges
+    p.x_range = Range1d(0, max(base)+1)
+    p.xaxis.ticker = np.linspace(min(base),
+                                 max(base), 
+                                 6,
+                                 dtype='int').tolist()
     # call create tick date dict function to convert a list of day sequence of
     # the data series to a dict containing keys as list of days and values
     # the according dates. This dict format is required for FuncTickFormatter
@@ -114,7 +121,7 @@ def whisker_city_count(df, selection_day_range):
     p = figure(plot_width=820,
                plot_height=350,
                y_axis_label='Count')
-    
+              
     # not required for this function itself but for the
     # create_city_count_dataframe function as an argument. Requires kwargs 
     # adjustments of this function
@@ -134,6 +141,12 @@ def whisker_city_count(df, selection_day_range):
         city_counts.append(count)
         dates.append(date)
         
+    p.x_range = Range1d(0, max(dates)+1)
+    p.xaxis.ticker = np.linspace(min(dates),
+                                 max(dates), 
+                                 6,
+                                 dtype='int').tolist()
+    
     
     # call create tick date dict function to convert a list of day sequence of
     # the data series to a dict containing keys as list of days and values

@@ -37,7 +37,7 @@ def create_sentiment_data_source(df, selection_day_range):
     # create sources dict containing each ColumnDataSource 
     # Important note: this does represent each day rather a reduced selection 
     # to 6 days
-    s_sources = []
+    s_sources, s_sources_dummy = [], []
     for day in selection_day_range:
         x = df.polarity[df['day_range'] == day]
         y = df.subjectivity[df['day_range'] == day]
@@ -53,17 +53,26 @@ def create_sentiment_data_source(df, selection_day_range):
                                         'location': location,
                                         'tweet': text
                                         })
+        # for some reason 
+        dummy_source = ColumnDataSource(data={'s_x': x,
+                                        's_y': y,
+                                        'user': user,
+                                        'created': created,
+                                        'location': location,
+                                        'tweet': text
+                                        })
         s_sources.append(source) # create list of DataSource objects
-    
+        
+        # Workaround: For some reason the bokeh JS callback below requires
+        # distinctly assigned variables to the ColumnDataSources of the dummy
+        # data that is later deleted after the first JS callback. There must
+        # be a better way to achieve this.
+        s_sources_dummy.append(dummy_source)
+        
     # assign dummy source including all unfiltered data points for JS callback
     # and 6 actual date ranges to variables
-    s_source_dummy = ColumnDataSource(data={'s_x': df.polarity,
-                                        's_y': df.subjectivity,
-                                        'user': df.user_name,
-                                        'created': df.created,
-                                        'location': df.user_location_cleaned.apply(lambda x: string.capwords(x)),
-                                        'tweet': df.text
-                                        })
+    s_source_dummy = s_sources_dummy[0]
+
     s_source_full = ColumnDataSource(data={'s_x': df.polarity,
                                         's_y': df.subjectivity,
                                         'user': df.user_name,
@@ -167,7 +176,7 @@ def create_geo_data_source(df, selection_day_range):
     # create sources dict containing each ColumnDataSource 
     # Important note: this does represent each day rather a reduced selection 
     # to 6 days
-    g_sources = []
+    g_sources, g_sources_dummy = [], []
     for day in selection_day_range:
         df_day = df[df['day_range'] == day]
         df_cities = create_city_count_dataframe(df_day, log_city_max_day)
@@ -184,22 +193,30 @@ def create_geo_data_source(df, selection_day_range):
                                         'name': name,
                                         'bins': bins
                                         })
+        dummy_source = ColumnDataSource(data={'g_x': x,
+                                        'g_y': y,
+                                        'count': count,
+                                        'name': name,
+                                        'bins': bins
+                                        })
         g_sources.append(source) # create list of DataSource objects
+        
+        # Workaround: For some reason the bokeh JS callback below requires
+        # distinctly assigned variables to the ColumnDataSources of the dummy
+        # data that is later deleted after the first JS callback. There must
+        # be a better way to achieve this.
+        g_sources_dummy.append(dummy_source)
+    
+    
+    # create dummy data sources for the JS bokeh callback using full dataset
+    # the dummy data set is required as a placeholder and is deleted after
+    # changing dataset within the JS callback
+    g_source_dummy = g_sources_dummy[0]
     
     # create city count df by using unfiltered full df and log_city_max value
     # for the full dataset
     df_full = create_city_count_dataframe(df, log_city_max_full_dataset)
     
-    # create dummy data sources for the JS bokeh callback using full dataset
-    # the dummy data set is required as a placeholder and is deleted after
-    # changing dataset within the JS callback
-    g_source_dummy = ColumnDataSource(data={'g_x': df_full.loc[:, 'latitude'],
-                                            'g_y': df_full.loc[:, 'longitude'],
-                                            'count': df_full.loc[:, 'tweet_count'],
-                                            'name': df_full.index.str.capitalize(),
-                                            'bins': df_full.loc[:, 'tweet_count_bins'].astype(int).divide(20)
-                                            })
-
     g_source_full = ColumnDataSource(data={'g_x': df_full.loc[:, 'latitude'],
                                             'g_y': df_full.loc[:, 'longitude'],
                                             'count': df_full.loc[:, 'tweet_count'],
@@ -358,21 +375,21 @@ def create_bokeh_plot(df,
     # add custom JS callback for changing data based on date range
     callback = CustomJS(args={
       'source1': s_source_dummy, 
-      'source2': s_source_full,
-      'source3': s_source1,
-      'source4': s_source2,
-      'source5': s_source3,
-      'source6': s_source4,
-      'source7': s_source5,
-      'source8': s_source6,
+      'source2': s_source1,
+      'source3': s_source2,
+      'source4': s_source3,
+      'source5': s_source4,
+      'source6': s_source5,
+      'source7': s_source6,
+      'source8': s_source_full,
       'source9': g_source_dummy, 
-      'source10': g_source_full,
-      'source11': g_source1,
-      'source12': g_source2,
-      'source13': g_source3,
-      'source14': g_source4,
-      'source15': g_source5,
-      'source16': g_source6}, code="""
+      'source10': g_source1,
+      'source11': g_source2,
+      'source12': g_source3,
+      'source13': g_source4,
+      'source14': g_source5,
+      'source15': g_source6,
+      'source16': g_source_full}, code="""
       
         var data1 = source1.data;
         var data2 = source2.data;
@@ -550,7 +567,10 @@ def create_bokeh_plot(df,
     
     ph_fig_sep = Div(text="", height=50, width=20)
     ph_widget_sep = Div(text="", height=20, width=500)
+    
     # create whisker sentiment plots for polarity and subjectivity
+    # import whisker_plot to avoid import exceptions due to circular
+    # dependencies
     from whisker_plot import whisker_sentiment, whisker_city_count
     w_pol = whisker_sentiment(df, 'polarity')
     w_sub = whisker_sentiment(df, 'subjectivity')

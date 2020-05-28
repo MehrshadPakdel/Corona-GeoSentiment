@@ -116,7 +116,6 @@ def sentiment_analysis(df):
     return df
 
 def filter_day_range(df):
-    
     # format timestamps to datetime objects and assign to new column 
     # date_created as dates only
     df['created'] = pd.to_datetime(df['created'])
@@ -144,7 +143,7 @@ def filter_day_range(df):
     # that correspond to day range list. Required for dropdown option list
     # in the figure
     selection_dates = [key.strftime('%d.%m.%Y') for (key, value) in date_range_dict.items() if value in selection_day_range]
-    selection_dates.insert(0, 'Full dataset')
+    selection_dates.insert(len(selection_dates), 'Full dataset')
     
     # format time stamps for visualization
     df['created'] = pd.to_datetime(df['created'])

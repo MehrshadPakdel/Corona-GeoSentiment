@@ -123,7 +123,7 @@ def create_html_template(layout):
         
         <h2>About</h2>
     
-        <img src="https://drive.google.com/uc?id=1YsJ2Enk_ESJ-BBtMcc15gYKfLB4inG4p" alt="Profile Picture" style="width:150px;height:150px;" class="centerimg">
+        <img src="./img/img.jpg" alt="Profile Picture" style="width:125px;height:125px;" class="centerimg">
         
         <p style="text-align:center;color:teal">Mehrshad Pakdel</p>
         
